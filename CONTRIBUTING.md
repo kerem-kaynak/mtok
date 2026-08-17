@@ -77,6 +77,16 @@ programs.
   `cacheVersion` in `scan.go` and note it in the changelog (it costs users one
   cold rescan and resets deleted-file retention).
 
+## Releasing (maintainers)
+
+1. Bump `version` in `cmd/mtok/main.go`, add a CHANGELOG section, commit, push.
+2. `git tag vX.Y.Z && git push origin vX.Y.Z`
+3. `awk '/^## \[/{if(++n==2)exit} n==1' CHANGELOG.md | tail -n +2 > /tmp/notes.md`
+4. `GITHUB_TOKEN=$(gh auth token) HOMEBREW_TAP_GITHUB_TOKEN=$(gh auth token) goreleaser release --clean --release-notes /tmp/notes.md`
+
+goreleaser builds darwin/linux × amd64/arm64 archives, creates the GitHub
+release, and pushes the updated binary cask to `kerem-kaynak/homebrew-tap`.
+
 ## Reporting bugs
 
 Numbers you believe are wrong are the most valuable reports. Please include:

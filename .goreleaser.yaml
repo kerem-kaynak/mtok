@@ -1,0 +1,49 @@
+version: 2
+
+project_name: mtok
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/mtok
+    binary: mtok
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+# Release notes come from CHANGELOG.md (passed via --release-notes in CI),
+# not from the commit log.
+changelog:
+  disable: true
+
+# Prebuilt-binary cask in the personal tap (Casks/mtok.rb). The binary is not
+# Apple-notarized, so a post-install hook strips the quarantine attribute.
+homebrew_casks:
+  - name: mtok
+    repository:
+      owner: kerem-kaynak
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/kerem-kaynak/mtok
+    description: Terminal dashboard for AI token usage and spend from local Claude Code and Codex logs
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/mtok"]
+          end

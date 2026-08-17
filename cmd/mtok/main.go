@@ -12,7 +12,8 @@ import (
 	"github.com/kerem-kaynak/mtok/internal/tui"
 )
 
-const version = "0.3.0"
+// Overridden at release time via -ldflags "-X main.version=...".
+var version = "0.3.1"
 
 type multiFlag []string
 

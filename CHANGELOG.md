@@ -4,6 +4,17 @@ All notable changes to mtok are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org).
 
+## [0.3.1] — 2026-08-17
+
+### Changed
+- **Homebrew now installs prebuilt binaries** instead of compiling from
+  source — `brew install kerem-kaynak/tap/mtok` no longer pulls in a Go
+  toolchain. Releases are built by goreleaser (darwin/linux × amd64/arm64),
+  which also publishes the tap package.
+- The tap package is now a **cask**; existing formula installs migrate
+  automatically via the tap's `tap_migrations.json`.
+- `--version` is stamped from the release tag at build time.
+
 ## [0.3.0] — 2026-08-17
 
 Pricing-accuracy release: the bundled rate table and both parsers were audited
