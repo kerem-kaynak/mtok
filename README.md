@@ -18,18 +18,7 @@ API-equivalent list prices** — what the same tokens would have cost at
 pay-as-you-go rates. For subscription users that's your "value extracted"
 number, not a bill.
 
-```
-╭──────────────╮╭──────────────╮╭──────────────╮╭──────────────╮
-│ TODAY        ││ MONTH TO DATE││ LAST 30 DAYS ││ ALL TIME*    │
-│ $40.65       ││ $1,546       ││ $3,397       ││ $3,449       │
-│ 27.52M tok   ││ 802.59M tok  ││ 1.72B tok    ││ 1.78B tok    │
-╰──────────────╯╰──────────────╯╰──────────────╯╰──────────────╯
- Daily cost — last 30 days          Cache hit — 30 days
- $394│      ██       ▇▇ ██          ███████████████████░░ 92%
-     │      ██       ██ ██ ▂▂       Model mix — 30 days
-     │▅▅ ▅▅ ██ ▁▁ ██ ██ ██ ██ …     ██████████████████ ████ █ █
- $0.0┴────────────────────────      ■ claude-fable-5 $2,864 (84%)
-```
+![mtok demo](docs/demo.gif)
 
 ## Features
 
