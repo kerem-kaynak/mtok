@@ -23,7 +23,7 @@ var (
 	cAxis  = lipgloss.AdaptiveColor{Light: "#c3c2b7", Dark: "#383835"}
 	// Selection background: same warm gray as the grid, stepped further from
 	// the terminal background so the cursor row is clearly visible.
-	cSel = lipgloss.AdaptiveColor{Light: "#c3c2b7", Dark: "#4a4a45"}
+	cSel   = lipgloss.AdaptiveColor{Light: "#c3c2b7", Dark: "#4a4a45"}
 	cOther = cMuted // fold-to-"Other" swatch
 )
 
@@ -50,8 +50,8 @@ var (
 	sFooter = lipgloss.NewStyle().Foreground(cMuted)
 
 	sSelected = lipgloss.NewStyle().Bold(true).Foreground(cInk).Background(cSel)
-	sHeader = lipgloss.NewStyle().Bold(true).Foreground(cInk2).
-		Border(lipgloss.NormalBorder(), false, false, true, false).BorderForeground(cGrid)
+	sHeader   = lipgloss.NewStyle().Bold(true).Foreground(cInk2).
+			Border(lipgloss.NormalBorder(), false, false, true, false).BorderForeground(cGrid)
 )
 
 // slotColor returns the categorical color for a fixed slot index; entities
