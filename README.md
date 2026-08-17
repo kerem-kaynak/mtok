@@ -54,6 +54,12 @@ number, not a bill.
 ## Install
 
 ```sh
+brew install kerem-kaynak/tap/mtok
+```
+
+Or with Go:
+
+```sh
 go install github.com/kerem-kaynak/mtok/cmd/mtok@latest
 ```
 
