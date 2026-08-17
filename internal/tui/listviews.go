@@ -76,7 +76,7 @@ func (v *modelsView) layout() {
 		row = append(row, pct(g.CacheHitRate()), comma(g.Calls))
 		rows = append(rows, row)
 	}
-	v.t = newTable(stretch(cols, v.w), tableHeight(v.h)-1)
+	v.t = newTable(cols, tableHeight(v.h)-1)
 	v.t.SetRows(rows)
 }
 
@@ -149,7 +149,7 @@ func (v *projectsView) layout() {
 		}
 		rows = append(rows, row)
 	}
-	v.t = newTable(stretch(cols, v.w), tableHeight(v.h))
+	v.t = newTable(cols, tableHeight(v.h))
 	v.t.SetRows(rows)
 }
 
@@ -218,7 +218,7 @@ func (v *sessionsView) layout() {
 		)
 		rows = append(rows, row)
 	}
-	v.t = newTable(stretch(cols, v.w), tableHeight(v.h)-1)
+	v.t = newTable(cols, tableHeight(v.h)-1)
 	v.t.SetRows(rows)
 }
 

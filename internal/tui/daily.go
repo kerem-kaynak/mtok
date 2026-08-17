@@ -61,12 +61,8 @@ func (v *dailyView) layout() {
 		rows = append(rows, row)
 		v.keys = append(v.keys, g.Key)
 	}
-	target := v.w
-	if dw := v.detailWidth(); dw > 0 {
-		target = tw
-	}
 	cur := v.t.Cursor()
-	v.t = newTable(stretch(cols, target), tableHeight(v.h))
+	v.t = newTable(cols, tableHeight(v.h))
 	v.t.SetRows(rows)
 	if cur > 0 && cur < len(rows) {
 		v.t.SetCursor(cur)
