@@ -21,6 +21,9 @@ var (
 	cMuted = lipgloss.AdaptiveColor{Light: "#898781", Dark: "#898781"}
 	cGrid  = lipgloss.AdaptiveColor{Light: "#e1e0d9", Dark: "#2c2c2a"}
 	cAxis  = lipgloss.AdaptiveColor{Light: "#c3c2b7", Dark: "#383835"}
+	// Selection background: same warm gray as the grid, stepped further from
+	// the terminal background so the cursor row is clearly visible.
+	cSel = lipgloss.AdaptiveColor{Light: "#c3c2b7", Dark: "#4a4a45"}
 	cOther = cMuted // fold-to-"Other" swatch
 )
 
@@ -46,11 +49,7 @@ var (
 
 	sFooter = lipgloss.NewStyle().Foreground(cMuted)
 
-	// Selection bar: accent background so the cursor row reads at a glance;
-	// white holds up on the accent blue in both modes.
-	sSelected = lipgloss.NewStyle().Bold(true).
-			Foreground(lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}).
-			Background(cAccent)
+	sSelected = lipgloss.NewStyle().Bold(true).Foreground(cInk).Background(cSel)
 	sHeader = lipgloss.NewStyle().Bold(true).Foreground(cInk2).
 		Border(lipgloss.NormalBorder(), false, false, true, false).BorderForeground(cGrid)
 )
