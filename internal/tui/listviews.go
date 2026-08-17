@@ -90,7 +90,7 @@ func (v *modelsView) render() string {
 	if v.d == nil {
 		return sMuted.Render("no usage found")
 	}
-	out := v.t.View()
+	out := muteRows(v.t.View())
 	if v.unpriced {
 		out += "\n" + sMuted.Render("— = no rates for this model; add it to ~/.config/mtok/config.json to price it")
 	}
@@ -163,7 +163,7 @@ func (v *projectsView) render() string {
 	if v.d == nil {
 		return sMuted.Render("no usage found")
 	}
-	return v.t.View()
+	return muteRows(v.t.View())
 }
 
 // sessionsView: recent sessions, newest first.
@@ -232,7 +232,7 @@ func (v *sessionsView) render() string {
 	if v.d == nil {
 		return sMuted.Render("no usage found")
 	}
-	out := v.t.View()
+	out := muteRows(v.t.View())
 	if len(v.d.sessions) > maxSessionRows {
 		out += "\n" + sMuted.Render("showing the 500 most recent sessions")
 	}

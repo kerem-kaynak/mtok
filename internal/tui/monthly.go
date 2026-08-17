@@ -66,7 +66,7 @@ func (v *monthlyView) render() string {
 	if v.d == nil || len(v.keys) == 0 {
 		return sMuted.Render("no usage found")
 	}
-	tbl := v.t.View()
+	tbl := muteRows(v.t.View())
 	if note := v.d.coverageNote(); note != "" {
 		tbl += "\n" + sMuted.Render(note)
 	}

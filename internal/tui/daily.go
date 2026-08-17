@@ -79,7 +79,7 @@ func (v *dailyView) render() string {
 	if v.d == nil || len(v.keys) == 0 {
 		return sMuted.Render("no usage found")
 	}
-	tbl := v.t.View()
+	tbl := muteRows(v.t.View())
 	dw := v.detailWidth()
 	if dw == 0 {
 		return tbl
