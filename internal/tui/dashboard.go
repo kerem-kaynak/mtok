@@ -204,7 +204,8 @@ func modelMix(rows []usage.Row, d *data, w int) string {
 		segs = append(segs, segment{"other", other, cOther})
 		legend = append(legend, "  "+swatch(cOther)+" "+sInk2.Render("other")+" "+sInk.Render(fmtVal(other)))
 	}
-	return shareBar(segs, w) + "\n" + strings.Join(legend, "\n")
+	// Blank line so the legend doesn't sit flush against the bar.
+	return shareBar(segs, w) + "\n\n" + strings.Join(legend, "\n")
 }
 
 func tile(title, value, sub, sub2 string) string {

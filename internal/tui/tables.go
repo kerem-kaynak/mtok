@@ -19,6 +19,20 @@ func newTable(cols []table.Column, height int) table.Model {
 	return t
 }
 
+// stretch widens the last column so the rendered table (each cell pads 2)
+// spans exactly w terminal columns — the selection bar then covers the full
+// row instead of stopping at the last column's edge.
+func stretch(cols []table.Column, w int) []table.Column {
+	used := 0
+	for _, c := range cols {
+		used += c.Width + 2
+	}
+	if extra := w - used; extra > 0 {
+		cols[len(cols)-1].Width += extra
+	}
+	return cols
+}
+
 func tableHeight(h int) int {
 	th := h - 3 // header + rule + breathing room
 	if th < 3 {
