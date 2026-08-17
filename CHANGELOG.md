@@ -4,6 +4,19 @@ All notable changes to mtok are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org).
 
+## [0.3.2] — 2026-08-17
+
+### Fixed
+- **Table cursor highlight spans every column.** The per-cell foreground style
+  embedded ANSI resets that cut the selection background off after the first
+  column; cells are now padding-only and the selected row renders as one
+  contiguous bar.
+- Selection bar contrast raised (`#c3c2b7` light / `#4a4a45` dark) — the old
+  grid-tone background was nearly invisible on many terminals.
+
+### Changed
+- Dashboard model-mix panel: blank line between the stacked bar and its legend.
+
 ## [0.3.1] — 2026-08-17
 
 ### Changed
