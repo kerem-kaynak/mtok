@@ -1,0 +1,11 @@
+# Binaries
+/mtok
+/dist/
+
+# OS noise
+.DS_Store
+
+# Editor state
+.idea/
+.vscode/
+*.swp
