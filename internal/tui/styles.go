@@ -46,9 +46,13 @@ var (
 
 	sFooter = lipgloss.NewStyle().Foreground(cMuted)
 
-	sSelected = lipgloss.NewStyle().Bold(true).Foreground(cInk).Background(cGrid)
-	sHeader   = lipgloss.NewStyle().Bold(true).Foreground(cInk2).
-			Border(lipgloss.NormalBorder(), false, false, true, false).BorderForeground(cGrid)
+	// Selection bar: accent background so the cursor row reads at a glance;
+	// white holds up on the accent blue in both modes.
+	sSelected = lipgloss.NewStyle().Bold(true).
+			Foreground(lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}).
+			Background(cAccent)
+	sHeader = lipgloss.NewStyle().Bold(true).Foreground(cInk2).
+		Border(lipgloss.NormalBorder(), false, false, true, false).BorderForeground(cGrid)
 )
 
 // slotColor returns the categorical color for a fixed slot index; entities

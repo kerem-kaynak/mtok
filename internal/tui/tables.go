@@ -6,7 +6,7 @@ import (
 )
 
 // newTable builds a bubbles table with mtok chrome: bold header over a
-// hairline rule, quiet cells, subtle selection. Cells are plain text —
+// hairline rule, quiet cells, an accent selection bar. Cells are plain text —
 // identity color lives in charts and detail panes, not table rows.
 func newTable(cols []table.Column, height int) table.Model {
 	t := table.New(table.WithColumns(cols), table.WithFocused(true), table.WithHeight(height))
@@ -14,7 +14,7 @@ func newTable(cols []table.Column, height int) table.Model {
 	st.Header = st.Header.Bold(true).Foreground(cInk2).
 		BorderStyle(lipgloss.NormalBorder()).BorderForeground(cGrid).BorderBottom(true)
 	st.Cell = st.Cell.Foreground(cInk2)
-	st.Selected = lipgloss.NewStyle().Bold(true).Foreground(cInk).Background(cGrid)
+	st.Selected = sSelected
 	t.SetStyles(st)
 	return t
 }
