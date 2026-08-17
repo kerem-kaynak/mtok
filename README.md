@@ -129,13 +129,15 @@ not API calls) are excluded. Cache writes are split into 5-minute and 1-hour
 tiers when the log has the breakdown (all-5m otherwise). Fast-mode turns
 (`usage.speed: "fast"`) are billed at 2× list rates.
 
-**Codex parsing.** `token_count` events carry cumulative session totals; mtok
-takes per-event deltas, clamped at zero per field — which also absorbs the one
-case where Codex clobbers its running counters (on context-window-exceeded
-errors). Compaction does *not* reset Codex totals, so deltas stay exact across
-compactions. Codex's `input_tokens` *includes* cached and cache-write tokens;
-mtok decomposes it so each token is priced exactly once, at its own tier. The
-active model tracks both `turn_context` and `thread_settings_applied` events.
+**Codex parsing.** Both active rollouts in `~/.codex/sessions` and completed
+rollouts moved to `~/.codex/archived_sessions` are scanned. `token_count`
+events carry cumulative session totals; mtok takes per-event deltas, clamped
+at zero per field — which also absorbs the one case where Codex clobbers its
+running counters (on context-window-exceeded errors). Compaction does *not*
+reset Codex totals, so deltas stay exact across compactions. Codex's
+`input_tokens` *includes* cached and cache-write tokens; mtok decomposes it so
+each token is priced exactly once, at its own tier. The active model tracks
+both `turn_context` and `thread_settings_applied` events.
 
 **Pricing.** List prices per million tokens, cache tiers priced separately:
 Anthropic at the standard multipliers (0.1× read, 1.25× 5m write, 2× 1h

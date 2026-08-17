@@ -4,6 +4,14 @@ All notable changes to mtok are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org).
 
+## [Unreleased]
+
+### Fixed
+- **Archived Codex sessions are included in usage totals.** Codex moves
+  completed rollouts from `~/.codex/sessions` to
+  `~/.codex/archived_sessions`; mtok now scans both locations and recognizes a
+  moved rollout as the same cached file so it is never counted twice.
+
 ## [0.3.2] — 2026-08-17
 
 ### Fixed
