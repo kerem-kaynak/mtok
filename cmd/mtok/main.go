@@ -20,6 +20,22 @@ type multiFlag []string
 func (m *multiFlag) String() string     { return fmt.Sprint(*m) }
 func (m *multiFlag) Set(v string) error { *m = append(*m, v); return nil }
 
+// resolveDirs picks the data roots for one source: explicit flags win, then
+// the config file, then the relocation env var the tool itself honors
+// (CLAUDE_CONFIG_DIR / CODEX_HOME), then the conventional home location.
+func resolveDirs(flags, cfg []string, envVar, fallback string) []string {
+	if len(flags) > 0 {
+		return flags
+	}
+	if len(cfg) > 0 {
+		return cfg
+	}
+	if dir := os.Getenv(envVar); dir != "" {
+		return []string{dir}
+	}
+	return []string{fallback}
+}
+
 func main() {
 	var (
 		claudeDirs  multiFlag
@@ -28,8 +44,8 @@ func main() {
 		noCache     = flag.Bool("no-cache", false, "reparse all files, ignoring the parse cache")
 		showVersion = flag.Bool("version", false, "print version and exit")
 	)
-	flag.Var(&claudeDirs, "claude-dir", "Claude Code data dir (repeatable; default ~/.claude)")
-	flag.Var(&codexDirs, "codex-dir", "Codex data dir (repeatable; default ~/.codex)")
+	flag.Var(&claudeDirs, "claude-dir", "Claude Code data dir (repeatable; default $CLAUDE_CONFIG_DIR or ~/.claude)")
+	flag.Var(&codexDirs, "codex-dir", "Codex data dir (repeatable; default $CODEX_HOME or ~/.codex)")
 	flag.Parse()
 
 	if *showVersion {
@@ -48,18 +64,8 @@ func main() {
 	table := pricing.Defaults()
 	table.Apply(cfg.Pricing)
 
-	if len(claudeDirs) == 0 {
-		claudeDirs = cfg.ClaudeDirs
-	}
-	if len(claudeDirs) == 0 {
-		claudeDirs = []string{filepath.Join(home, ".claude")}
-	}
-	if len(codexDirs) == 0 {
-		codexDirs = cfg.CodexDirs
-	}
-	if len(codexDirs) == 0 {
-		codexDirs = []string{filepath.Join(home, ".codex")}
-	}
+	claudeDirs = resolveDirs(claudeDirs, cfg.ClaudeDirs, "CLAUDE_CONFIG_DIR", filepath.Join(home, ".claude"))
+	codexDirs = resolveDirs(codexDirs, cfg.CodexDirs, "CODEX_HOME", filepath.Join(home, ".codex"))
 
 	cacheFile := filepath.Join(home, ".cache", "mtok", "scan.gob")
 	if *noCache {

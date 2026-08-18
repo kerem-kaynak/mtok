@@ -96,6 +96,11 @@ Optional, at `~/.config/mtok/config.json`:
 }
 ```
 
+- `claude_dirs` / `codex_dirs` (and the `--claude-dir` / `--codex-dir` flags)
+  override where logs are read from. When neither is given, mtok honors the
+  same relocation variables the tools themselves use — `$CLAUDE_CONFIG_DIR`
+  (else `~/.claude`) and `$CODEX_HOME` (else `~/.codex`) — so a relocated
+  install is found without configuration.
 - `pricing` keys are model IDs (normalized the same way logged IDs are —
   region/vendor prefixes, `-latest`, date stamps, and `-v1:0`-style suffixes
   are stripped). Rates are **USD per million tokens**. Overrides win over the
@@ -156,6 +161,15 @@ parse cache even after the file is deleted, so numbers never move backwards
 between scans. The all-time tile carries an asterisk because logs deleted
 *before* mtok first saw them are gone for good. Tip: raise
 `"cleanupPeriodDays"` in `~/.claude/settings.json` to keep history.
+
+**Archived chats.** Claude Code has no archive location on disk — verified
+against the CLI itself and its changelog. "Archiving" a session there is
+server-side state on cloud sessions only; deleting one (from the `/resume`
+picker or the `cleanupPeriodDays` sweep) removes the file outright, and local
+transcripts otherwise never leave `<config-dir>/projects/`, which mtok walks
+in full, nested subagent transcripts included. Every Claude chat that exists
+locally is counted, and deleted ones are covered by the retention carryover
+above.
 
 ### Known limits
 
