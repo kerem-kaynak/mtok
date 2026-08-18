@@ -155,3 +155,72 @@ func TestParseCodexFile(t *testing.T) {
 		t.Errorf("row2 deltas wrong: %+v", r2)
 	}
 }
+
+func TestScanCodexArchivedSessionsWithoutDoubleCountingMove(t *testing.T) {
+	root := t.TempDir()
+	liveDir := filepath.Join(root, "sessions", "2026", "08", "02")
+	archiveDir := filepath.Join(root, "archived_sessions")
+	if err := os.MkdirAll(liveDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	name := "rollout-2026-08-02T09-00-00-c1.jsonl"
+	live := filepath.Join(liveDir, name)
+	archived := filepath.Join(archiveDir, name)
+	if err := os.WriteFile(live, []byte(codexFixture), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cache := filepath.Join(root, "cache.gob")
+	opts := Options{CodexDirs: []string{root}, CacheFile: cache}
+
+	first, err := Scan(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Files != 1 || len(first.Rows) != 3 || first.Retained != 0 {
+		t.Fatalf("live scan: files=%d rows=%d retained=%d", first.Files, len(first.Rows), first.Retained)
+	}
+	// Existing v2 caches predate cacheEntry.Source. Rows provide a backwards-
+	// compatible source fallback, so moving an already-cached rollout remains
+	// deduplicated immediately after upgrading mtok.
+	cached := loadCache(cache)
+	entry := cached[live]
+	entry.Source = ""
+	cached[live] = entry
+	saveCache(cache, cacheFile{Version: cacheVersion, Files: cached})
+
+	// Simulate Codex archiving a rollout after mtok cached its live path.
+	if err := os.MkdirAll(archiveDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(live, archived); err != nil {
+		t.Fatal(err)
+	}
+	second, err := Scan(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.Files != 1 || len(second.Rows) != 3 || second.Retained != 0 {
+		t.Fatalf("archived scan: files=%d rows=%d retained=%d", second.Files, len(second.Rows), second.Retained)
+	}
+
+	third, err := Scan(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if third.Files != 1 || third.FromCache != 1 || len(third.Rows) != 3 || third.Retained != 0 {
+		t.Fatalf("warm archived scan: files=%d cached=%d rows=%d retained=%d",
+			third.Files, third.FromCache, len(third.Rows), third.Retained)
+	}
+
+	// If both paths briefly exist, prefer sessions/ and count the rollout once.
+	if err := os.WriteFile(live, []byte(codexFixture), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	both, err := Scan(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if both.Files != 1 || len(both.Rows) != 3 {
+		t.Fatalf("duplicate live/archive scan: files=%d rows=%d", both.Files, len(both.Rows))
+	}
+}

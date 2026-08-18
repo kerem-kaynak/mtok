@@ -18,7 +18,7 @@ import (
 // Options configures a scan.
 type Options struct {
 	ClaudeDirs []string                // roots containing projects/*/*.jsonl (default ~/.claude)
-	CodexDirs  []string                // roots containing sessions/**/*.jsonl (default ~/.codex)
+	CodexDirs  []string                // roots containing sessions/**/*.jsonl and archived_sessions/*.jsonl (default ~/.codex)
 	CacheFile  string                  // per-file parse cache; empty disables caching
 	Progress   func(done, total int64) // optional, called from worker goroutines
 }
@@ -36,6 +36,7 @@ type Result struct {
 const cacheVersion = 2 // v2: usage.Row gained Fast + Claude Reasoning
 
 type cacheEntry struct {
+	Source  string
 	Size    int64
 	ModTime int64 // ns
 	Rows    []usage.Row
@@ -109,9 +110,22 @@ func Scan(opts Options) (*Result, error) {
 	// sessions. Once mtok has parsed a file, its rows outlive it — carry
 	// cache entries for vanished files forward so totals never move
 	// backwards. (--no-cache disables the cache and with it retention.)
+	// Codex moves completed rollouts from sessions/ to archived_sessions/;
+	// when the archived copy is live, do not also retain its old cache entry.
+	liveCodexRollouts := make(map[string]struct{})
+	for path, e := range fresh.Files {
+		if cacheEntrySource(e) == usage.SourceCodex {
+			liveCodexRollouts[codexRolloutKey(path)] = struct{}{}
+		}
+	}
 	for path, e := range cached {
 		if _, live := fresh.Files[path]; live {
 			continue
+		}
+		if cacheEntrySource(e) == usage.SourceCodex {
+			if _, moved := liveCodexRollouts[codexRolloutKey(path)]; moved {
+				continue
+			}
 		}
 		if _, serr := os.Stat(path); serr == nil {
 			continue // still on disk; parse failed above and was reported
@@ -148,7 +162,19 @@ func parseOne(job sourceFile, cached map[string]cacheEntry) (cacheEntry, bool, e
 	if err != nil {
 		return cacheEntry{}, false, err
 	}
-	return cacheEntry{Size: st.Size(), ModTime: st.ModTime().UnixNano(), Rows: rows}, false, nil
+	return cacheEntry{Source: job.source, Size: st.Size(), ModTime: st.ModTime().UnixNano(), Rows: rows}, false, nil
+}
+
+// cacheEntrySource keeps caches written before cacheEntry.Source was added
+// usable. Parsed rows have always carried their source.
+func cacheEntrySource(e cacheEntry) string {
+	if e.Source != "" {
+		return e.Source
+	}
+	if len(e.Rows) > 0 {
+		return e.Rows[0].Source
+	}
+	return ""
 }
 
 // dedup keeps one row per DedupKey. Claude Code writes the same response
@@ -232,12 +258,33 @@ func discover(opts Options) ([]sourceFile, error) {
 			return nil, err
 		}
 	}
+	// Codex moves completed rollouts from the date-partitioned sessions tree
+	// into archived_sessions. Scan both. A rollout can briefly exist in both
+	// places while it is being moved, so its UUID-bearing filename is the
+	// stable identity; prefer the live sessions copy encountered first.
+	var codexFiles []sourceFile
 	for _, root := range opts.CodexDirs {
-		if err := walkJSONL(filepath.Join(expandHome(root), "sessions"), usage.SourceCodex, &files); err != nil {
-			return nil, err
+		root = expandHome(root)
+		for _, dir := range []string{"sessions", "archived_sessions"} {
+			if err := walkJSONL(filepath.Join(root, dir), usage.SourceCodex, &codexFiles); err != nil {
+				return nil, err
+			}
 		}
 	}
+	seenRollouts := make(map[string]struct{}, len(codexFiles))
+	for _, f := range codexFiles {
+		key := codexRolloutKey(f.path)
+		if _, seen := seenRollouts[key]; seen {
+			continue
+		}
+		seenRollouts[key] = struct{}{}
+		files = append(files, f)
+	}
 	return files, nil
+}
+
+func codexRolloutKey(path string) string {
+	return filepath.Base(path)
 }
 
 func walkJSONL(dir, source string, files *[]sourceFile) error {
