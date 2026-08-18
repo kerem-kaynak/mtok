@@ -13,7 +13,7 @@ import (
 )
 
 // Overridden at release time via -ldflags "-X main.version=...".
-var version = "0.3.2"
+var version = "0.3.3"
 
 type multiFlag []string
 

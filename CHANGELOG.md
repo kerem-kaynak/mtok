@@ -4,13 +4,21 @@ All notable changes to mtok are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org).
 
-## [Unreleased]
+## [0.3.3] — 2026-08-18
 
 ### Fixed
 - **Archived Codex sessions are included in usage totals.** Codex moves
   completed rollouts from `~/.codex/sessions` to
   `~/.codex/archived_sessions`; mtok now scans both locations and recognizes a
   moved rollout as the same cached file so it is never counted twice.
+  Thanks @coryoso!
+- **Default data dirs honor `CLAUDE_CONFIG_DIR` and `CODEX_HOME`.** When no
+  `--claude-dir`/`--codex-dir` flag or config entry is given, mtok resolves
+  the same relocation env vars Claude Code and Codex honor themselves before
+  falling back to `~/.claude` and `~/.codex` — a relocated install previously
+  scanned nothing and silently reported zero usage. (Claude Code needs no
+  archive handling: it has no on-disk archive, and deleted transcripts are
+  already covered by parse-cache retention.)
 
 ## [0.3.2] — 2026-08-17
 
